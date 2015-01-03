@@ -70,8 +70,7 @@ import android.widget.TextView;
  */
 
 @SuppressLint("ValidFragment")
-public class FragmentHome extends Fragment implements IXListViewListener
-		,OnSingleTouchListener  {
+public class HomeFragment extends Fragment implements IXListViewListener, OnSingleTouchListener {
 
 	// view
 	public static View rootView;
@@ -80,19 +79,14 @@ public class FragmentHome extends Fragment implements IXListViewListener
 	private ChildViewPager viewPager;
 	private List<View> dots;
 	private TextView tv_title;
-	private Button bn_refresh;
-
 	private ScheduledExecutorService scheduledExecutorService;
 	protected ImageLoader imageLoader = ImageLoader.getInstance();
-	DisplayImageOptions options_pager, options_head;
 
 	// adapter
 	private NewsListAdapter adapter;
-
 	// data
 	private List<Notice> noticeList = new ArrayList<Notice>();
 	private List<News> newsList;
-
 	private boolean notice_success = false;// 通知是否加载成功
 	private int page = 0;
 	private int currentItem = 0;
@@ -102,10 +96,6 @@ public class FragmentHome extends Fragment implements IXListViewListener
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		options_pager = ImageOptionsUtil.newsImageOptions();
-		options_head = ImageOptionsUtil.headImageOptions();
-		
-
 	}
 
 	@Override
@@ -145,8 +135,7 @@ public class FragmentHome extends Fragment implements IXListViewListener
 		tv_title = (TextView) header.findViewById(R.id.tv_titles);
 		viewPager = (ChildViewPager) header.findViewById(R.id.notice_vp);
 		setViewPagerScrollSpeed();
-		viewPager.setAdapter(new NoticePagerAdapter(noticeList, context,
-				options_pager));
+		viewPager.setAdapter(new NoticePagerAdapter(noticeList, context));
 		// 设置预加载3 修复切换白屏bug
 		viewPager.setOffscreenPageLimit(3);
 		viewPager.setOnPageChangeListener(new MyPageChangeListener());
@@ -157,20 +146,18 @@ public class FragmentHome extends Fragment implements IXListViewListener
 		xListView.addHeaderView(header);
 		xListView.setPullLoadEnable(false);
 		xListView.setPullRefreshEnable(true);
-		adapter = new NewsListAdapter(context, newsList, options_head);
-		AnimationAdapter animAdapter = new SwingBottomInAnimationAdapter(
-				adapter);
+		adapter = new NewsListAdapter(context, newsList);
+		AnimationAdapter animAdapter = new SwingBottomInAnimationAdapter(adapter);
 		animAdapter.setAbsListView(xListView);
 		animAdapter.setInitialDelayMillis(100);
 		xListView.setAdapter(animAdapter);
-		xListView.setXListViewListener(FragmentHome.this);
+		xListView.setXListViewListener(HomeFragment.this);
 		xListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				if (position == 0) {
-
 					return;// 0 是header
 				}
 				TextView title = (TextView) view.findViewById(R.id.txt_title);
@@ -178,38 +165,23 @@ public class FragmentHome extends Fragment implements IXListViewListener
 				Intent intent = new Intent();
 				intent.setClass(context, NewsDetailActivity.class);
 				News news = (News) adapter.getItem(position - 2); // 减去header
-																	// 还有xlistview的header
 				intent.putExtra("news", news);
 				context.startActivity(intent);
 
 			}
 		});
-		xListView.setOnScrollListener((new PauseOnScrollListener(imageLoader,
-				false, false)));
-
-		// initView
-/*		loadingLayout = (LinearLayout) view.findViewById(R.id.view_loading);
-		loadFaillayout = (LinearLayout) view.findViewById(R.id.view_load_fail);
-		bn_refresh = (Button) view.findViewById(R.id.bn_refresh);
-		bn_refresh.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				loadNews(1, true);
-				loadNotice();
-				//LoginUtil.Login(context);
-			}
-		});*/
-/*		box = new DynamicBox(getActivity(),xListView);
-        box.setDefaultLoadView();
-        box.showLoadingLayout();*/
+		
+		xListView.setOnScrollListener((new PauseOnScrollListener(imageLoader,false, false)));
+		
+		//loadNews(1, true);
+        //loadNotice();
+        //LoginUtil.Login(context);
 		String notice = new NoticeDao(getActivity()).getNitice();
         if (notice != null) {
             notice_success = true;
             Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
             noticeList = gson.fromJson(new String(notice),new TypeToken<List<Notice>>() {}.getType());
-            viewPager.setAdapter(new NoticePagerAdapter(noticeList, context, options_pager));
+            viewPager.setAdapter(new NoticePagerAdapter(noticeList, context));
         }
         String news = new NewsDao(getActivity()).getNewsJson();
         if(news!=null){
@@ -222,6 +194,7 @@ public class FragmentHome extends Fragment implements IXListViewListener
             box = new DynamicBox(getActivity(),xListView);
             box.setDefaultLoadView();
             box.showLoadingLayout();
+            //加载
             loadNews(1, true);
         }
 		loadNotice();
@@ -231,36 +204,30 @@ public class FragmentHome extends Fragment implements IXListViewListener
 	/*加载的逻辑
 	 * 先从数据库曲 有的话就展现 然后去主动刷新 存数据库
 	 * 没有的话 展示正在加载中
-	 * 
 	 * */
 	// 加载通知
 	private void loadNotice() {
 		RequestParams params = new RequestParams();
-		TwitterRestClient.post(Config.AC_NOTICE_LIST, params,
-				new AsyncHttpResponseHandler() {
+		TwitterRestClient.post(Config.AC_NOTICE_LIST, params, new AsyncHttpResponseHandler() {
 
-					@Override
-					public void onFailure(int arg0, Header[] arg1, byte[] arg2,
-							Throwable arg3) {
-						// TODO Auto-generated method stub
-						onLoad();
-					}
+			@Override
+			public void onFailure(int arg0, Header[] arg1, byte[] arg2, Throwable arg3) {
+				// TODO Auto-generated method stub
+				onLoad();
+			}
 
-					@Override
-					public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
-						// 加载成功
-					    new NoticeDao(getActivity()).saveNitice(new String(arg2));
-						Gson gson = new GsonBuilder().setDateFormat(
-								"yyyy-MM-dd HH:mm:ss").create();
-						noticeList = gson.fromJson(new String(arg2),
-								new TypeToken<List<Notice>>() {
-								}.getType());
-						viewPager.setAdapter(new NoticePagerAdapter(noticeList,
-								context, options_pager));
-						notice_success = true;
+			@Override
+			public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
+				// 加载成功
+				new NoticeDao(getActivity()).saveNitice(new String(arg2));
+				Gson gson = new GsonBuilder().setDateFormat(TimeUtil.FORMAT_DATE_TIME_S).create();
+				noticeList = gson.fromJson(new String(arg2), new TypeToken<List<Notice>>() {
+				}.getType());
+				viewPager.setAdapter(new NoticePagerAdapter(noticeList, context));
+				notice_success = true;
 
-					}
-				});
+			}
+		});
 
 	}
 
@@ -291,9 +258,8 @@ public class FragmentHome extends Fragment implements IXListViewListener
 					         box.hideAll();
 					    }
 						onLoad();
-                        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                        Gson gson = new GsonBuilder().setDateFormat(TimeUtil.FORMAT_DATE_TIME_S).create();
 						String response = new String(data);
-						System.out.println(response );
 						newsList = gson.fromJson(new String(data),new TypeToken<List<News>>() {}.getType());
 						
 						if(page_num==1){

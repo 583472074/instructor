@@ -15,6 +15,7 @@ package com.easemob.chatuidemo.adapter;
 
 import itstudio.instructor.config.Config;
 import itstudio.instructor.config.ImageOptionsUtil;
+import itstudio.instructor.config.MyApplication;
 
 import java.io.File;
 import java.util.Date;
@@ -60,7 +61,6 @@ import com.easemob.chat.TextMessageBody;
 import com.easemob.chat.VideoMessageBody;
 import com.easemob.chat.VoiceMessageBody;
 import com.easemob.chatuidemo.Constant;
-import com.easemob.chatuidemo.MyApplication;
 import com.easemob.chatuidemo.R;
 import com.easemob.chatuidemo.activity.AlertDialog;
 import com.easemob.chatuidemo.activity.BaiduMapActivity;

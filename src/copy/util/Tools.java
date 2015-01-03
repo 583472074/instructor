@@ -94,7 +94,7 @@ public class Tools {
 	 */
 	public static void log(String str) {
 		if (str != null)
-			Log.e("--------->>", str);
+			Log.e("log--->", str);
 	}
 
 	/**

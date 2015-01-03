@@ -1,8 +1,8 @@
 package itstudio.instructor.fragment;
 
+import itstudio.instructor.config.MyApplication;
 import itstudio.instructor.util.FileUtils;
 
-import com.easemob.chatuidemo.MyApplication;
 import com.easemob.chatuidemo.R;
 import com.easemob.chatuidemo.activity.LoginActivity;
 import android.content.Intent;
@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class FragmentSetting extends Fragment {
+public class SettingFragment extends Fragment {
 
     private View rootView ;
     private ImageView headImg;

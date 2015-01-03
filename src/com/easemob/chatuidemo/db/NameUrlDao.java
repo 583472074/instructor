@@ -13,6 +13,7 @@
  */
 package com.easemob.chatuidemo.db;
 
+import itstudio.instructor.config.MyApplication;
 import itstudio.instructor.entity.User;
 
 import java.util.HashMap;
@@ -26,7 +27,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.easemob.chatuidemo.Constant;
-import com.easemob.chatuidemo.MyApplication;
 import com.easemob.chatuidemo.utils.AESCipher;
 import com.easemob.util.HanziToPinyin;
 

@@ -1,11 +1,12 @@
-package com.easemob.chatuidemo.activity;
+package itstudio.instructor.fragment;
+
+import itstudio.instructor.config.MyApplication;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,21 +29,20 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
-import android.widget.Filter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.easemob.chat.EMChatManager;
 import com.easemob.chat.EMContact;
 import com.easemob.chat.EMConversation;
 import com.easemob.chat.EMGroup;
 import com.easemob.chat.EMGroupManager;
 import com.easemob.chat.EMMessage;
-import com.easemob.chatuidemo.MyApplication;
 import com.easemob.chatuidemo.R;
+import com.easemob.chatuidemo.activity.ChatActivity;
+import com.easemob.chatuidemo.activity.MainActivity;
 import com.easemob.chatuidemo.adapter.ChatAllHistoryAdapter;
 import com.easemob.chatuidemo.db.InviteMessgeDao;
 
@@ -50,7 +50,7 @@ import com.easemob.chatuidemo.db.InviteMessgeDao;
  * 显示所有会话记录，比较简单的实现，更好的可能是把陌生人存入本地，这样取到的聊天记录是可控的
  * 
  */
-public class ChatAllHistoryFragment extends Fragment {
+public class ChatHistoryFragment extends Fragment {
 
 	private InputMethodManager inputMethodManager;
 	private ListView listView;
@@ -65,10 +65,9 @@ public class ChatAllHistoryFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		//return inflater.inflate(R.layout.fragment_conversation_history, container, false);
-        View view = inflater.inflate(R.layout.fragment_conversation_history, container, false);
-
-            System.out.println("onceeeeeeeexxxxxxxxx");
+		
+            View view = inflater.inflate(R.layout.fragment_conversation_history, container, false);
+          
             inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             errorItem = (RelativeLayout) view.findViewById(R.id.rl_error_item);
             errorText = (TextView) errorItem.findViewById(R.id.tv_connect_errormsg);
@@ -110,6 +109,7 @@ public class ChatAllHistoryFragment extends Fragment {
                             intent.putExtra("userId", username);
                             
                         }
+                        // 加个机器人聊天
                         startActivity(intent);
                     }
                 }
@@ -161,8 +161,7 @@ public class ChatAllHistoryFragment extends Fragment {
     
 	}
 
-/*	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {}*/
+
 
 	void hideSoftKeyboard() {
 		if (getActivity().getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
@@ -199,24 +198,32 @@ public class ChatAllHistoryFragment extends Fragment {
 	}
 
 	/**
-	 * 刷新页面
+	 * 刷新页面  有可能view 还没有找到
 	 */
 	public void refresh() {
-	    System.out.println("RESRSRSRSRSERES---------");
-	    SystemClock.sleep(200);
-		conversationList.clear();
-		conversationList.addAll(loadConversationsWithRecentChat());
-		adapter.notifyDataSetChanged();
+		if(errorText==null){
+			 SystemClock.sleep(200);
+		}
+		if(errorText!=null){
+			conversationList.clear();
+			conversationList.addAll(loadConversationsWithRecentChat());
+			adapter.notifyDataSetChanged(); 
+		}
 	}
 
 	public void setNetWorkState(int state){
-	    SystemClock.sleep(200);
-	    if(state==0)
-	    errorItem.setVisibility(View.VISIBLE);
-	    else if(state==1)
-	    errorText.setText("连接不到聊天服务器");
-	    else
-	      errorText.setText("当前网络不可用，请检查网络设置");
+		if (errorText == null) {
+			SystemClock.sleep(200);
+		}
+		if (errorText != null) {
+			if (state == 0)
+				errorItem.setVisibility(View.VISIBLE);
+			else if (state == 1)
+				errorText.setText("连接不到聊天服务器");
+			else
+				errorText.setText("当前网络不可用，请检查网络设置");
+		}
+	   
 	}
 	/**
 	 * 获取所有会话

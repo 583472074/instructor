@@ -13,9 +13,12 @@
  */
 package com.easemob.chatuidemo.activity;
 
+import itstudio.instructor.config.MyApplication;
 import itstudio.instructor.entity.User;
-import itstudio.instructor.fragment.FragmentHome;
-import itstudio.instructor.fragment.FragmentSetting;
+import itstudio.instructor.fragment.ChatHistoryFragment;
+import itstudio.instructor.fragment.ContactlistFragment;
+import itstudio.instructor.fragment.HomeFragment;
+import itstudio.instructor.fragment.SettingFragment;
 import itstudio.instructor.jazzyViewPager.JazzyViewPager;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +56,6 @@ import com.easemob.chat.EMNotifier;
 import com.easemob.chat.GroupChangeListener;
 import com.easemob.chat.TextMessageBody;
 import com.easemob.chatuidemo.Constant;
-import com.easemob.chatuidemo.MyApplication;
 import com.easemob.chatuidemo.DemoHXSDKHelper;
 import com.easemob.chatuidemo.R;
 import com.easemob.chatuidemo.adapter.MainPagerAdapter;
@@ -77,16 +79,15 @@ public class MainActivity extends BaseActivity  implements View.OnClickListener 
 	private TextView unreadAddressLable;
 
 	private RelativeLayout[] mTabs;
+	private HomeFragment homeFragment;
 	private ContactlistFragment contactListFragment;
-	private FragmentHome homeFragment;
-	private ChatAllHistoryFragment chatHistoryFragment;
-	private FragmentSetting settingFragment;
+	private ChatHistoryFragment chatHistoryFragment;
+	private SettingFragment settingFragment;
 	private Fragment[] fragments;
 	private int index;
 	private NewMessageBroadcastReceiver msgReceiver;
 	// 账号在别处登录
 	public boolean isConflict = false;
-
     private JazzyViewPager jazzyPager;
   
 
@@ -107,10 +108,10 @@ public class MainActivity extends BaseActivity  implements View.OnClickListener 
 		if (getIntent().getBooleanExtra("conflict", false) && !isConflictDialogShow)
 			showConflictDialog();
 
-		homeFragment = new FragmentHome();
-		chatHistoryFragment = new ChatAllHistoryFragment();
+		homeFragment = new HomeFragment();
+		chatHistoryFragment = new ChatHistoryFragment();
 		contactListFragment = new ContactlistFragment();
-		settingFragment = new FragmentSetting();
+		settingFragment = new SettingFragment();
 		fragments = new Fragment[] { homeFragment,chatHistoryFragment, contactListFragment, settingFragment };
 		jazzyPager = (JazzyViewPager) findViewById(R.id.viewpager);
 		initView();
@@ -601,7 +602,6 @@ public class MainActivity extends BaseActivity  implements View.OnClickListener 
 		// 保存msg
         InviteMessgeDao inviteMessgeDao  = new InviteMessgeDao(MainActivity.this);
 		inviteMessgeDao.saveMessage(msg);
-		System.out.println();
 		// 未读数加1
 		User user = MyApplication.getInstance().getContactList().get(Constant.NEW_FRIENDS_USERNAME);
 		if (user.getUnreadMsgCount() == 0)
@@ -614,7 +614,7 @@ public class MainActivity extends BaseActivity  implements View.OnClickListener 
 	 * @param username
 	 * @return
 	 */
-	User setUserHead(String username) {
+	private User setUserHead(String username) {
 		User user = new User();
 		user.setUsername(username);
 		String headerName = null;

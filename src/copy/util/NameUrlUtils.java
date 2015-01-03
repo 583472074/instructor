@@ -1,11 +1,11 @@
 package copy.util;
 
+import itstudio.instructor.config.MyApplication;
 import itstudio.instructor.util.FileUtils;
 
 import java.util.HashMap;
 import com.easemob.chat.EMGroup;
 import com.easemob.chat.EMGroupManager;
-import com.easemob.chatuidemo.MyApplication;
 import com.easemob.chatuidemo.R;
 import com.easemob.chatuidemo.db.NameUrlDao;
 import android.os.Handler;
