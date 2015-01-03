@@ -16,6 +16,7 @@ package com.easemob.chatuidemo.activity;
 import itstudio.instructor.entity.User;
 import itstudio.instructor.fragment.FragmentHome;
 import itstudio.instructor.fragment.FragmentSetting;
+import itstudio.instructor.jazzyViewPager.JazzyViewPager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,14 +28,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.easemob.EMConnectionListener;
@@ -57,7 +56,7 @@ import com.easemob.chatuidemo.Constant;
 import com.easemob.chatuidemo.MyApplication;
 import com.easemob.chatuidemo.DemoHXSDKHelper;
 import com.easemob.chatuidemo.R;
-import com.easemob.chatuidemo.adapter.MyFragmentPagerAdapter;
+import com.easemob.chatuidemo.adapter.MainPagerAdapter;
 import com.easemob.chatuidemo.db.InviteMessgeDao;
 import com.easemob.chatuidemo.db.UserDao;
 import com.easemob.chatuidemo.domain.InviteMessage;
@@ -66,36 +65,30 @@ import com.easemob.chatuidemo.utils.CommonUtils;
 import com.easemob.util.EMLog;
 import com.easemob.util.HanziToPinyin;
 import com.easemob.util.NetUtils;
+import com.nineoldandroids.view.ViewHelper;
 import com.umeng.analytics.MobclickAgent;
 
-public class MainActivity extends BaseActivity  implements
-View.OnClickListener {
+public class MainActivity extends BaseActivity  implements View.OnClickListener {
 
 	protected static final String TAG = "MainActivity";
-	// 未读消息textview
+	
 	private TextView unreadLabel;
-	// 未读通讯录textview
+	
 	private TextView unreadAddressLable;
 
-	private Button[] mTabs;
+	private RelativeLayout[] mTabs;
 	private ContactlistFragment contactListFragment;
-	// private ChatHistoryFragment chatHistoryFragment;
 	private FragmentHome homeFragment;
 	private ChatAllHistoryFragment chatHistoryFragment;
 	private FragmentSetting settingFragment;
 	private Fragment[] fragments;
 	private int index;
-	// 当前fragment的index
-	private int currentTabIndex;
 	private NewMessageBroadcastReceiver msgReceiver;
 	// 账号在别处登录
 	public boolean isConflict = false;
 
-    private boolean hasLogin = false;
-
-    private ViewPager viewpager;
-    MyFragmentPagerAdapter adapter;
-   // private ImageView iv_bottom;
+    private JazzyViewPager jazzyPager;
+  
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -107,52 +100,22 @@ View.OnClickListener {
             startActivity(new Intent(this, LoginActivity.class));
             return;
         }
-		setContentView(R.layout.activity_main);
-		initView();
+		setContentView(R.layout.item_tab1);
+		
 		MobclickAgent.setDebugMode( true );
 		MobclickAgent.updateOnlineConfig(this);
-		
 		if (getIntent().getBooleanExtra("conflict", false) && !isConflictDialogShow)
 			showConflictDialog();
-     
 
-		// 这个fragment只显示好友和群组的聊天记录
-		// chatHistoryFragment = new ChatHistoryFragment();
-		// 显示所有人消息记录的fragment
 		homeFragment = new FragmentHome();
 		chatHistoryFragment = new ChatAllHistoryFragment();
 		contactListFragment = new ContactlistFragment();
 		settingFragment = new FragmentSetting();
 		fragments = new Fragment[] { homeFragment,chatHistoryFragment, contactListFragment, settingFragment };
-		viewpager = (ViewPager) findViewById(R.id.viewpager);
-        adapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), fragments);
-        viewpager.setAdapter(adapter);
-        viewpager.setOffscreenPageLimit(4);
-        viewpager.setOnPageChangeListener(new OnPageChangeListener() {
-            
-            @Override
-            public void onPageSelected(int arg0) {
-                // TODO Auto-generated method stub
-                for (View v :mTabs){
-                    v.setSelected(false);
-                }
-                currentTabIndex=arg0;
-                mTabs[arg0].setSelected(true);
-  
-            }
-            
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
-                
-            }
-            
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
-                
-            }
-        });
+		jazzyPager = (JazzyViewPager) findViewById(R.id.viewpager);
+		initView();
+   
+        initJazzyPager();
 		// 添加显示第一个fragment
 
 		// 注册一个接收消息的BroadcastReceiver
@@ -194,45 +157,80 @@ View.OnClickListener {
 	private void initView() {
 		unreadLabel = (TextView) findViewById(R.id.unread_msg_number);
 		unreadAddressLable = (TextView) findViewById(R.id.unread_address_number);
-		mTabs = new Button[4];
-		mTabs[0] = (Button) findViewById(R.id.btn_home);
-		mTabs[1] = (Button) findViewById(R.id.btn_conversation);
-		mTabs[2] = (Button) findViewById(R.id.btn_address_list);
-		mTabs[3] = (Button) findViewById(R.id.btn_me);
-		// 把第一个tab设为选中状态
-		mTabs[0].setSelected(true);;
+        mTabs = new RelativeLayout[4];
+        mTabs[0] = (RelativeLayout) findViewById(R.id.btn_container_home);
+        mTabs[1] = (RelativeLayout) findViewById(R.id.btn_container_conversation);
+        mTabs[2] = (RelativeLayout) findViewById(R.id.btn_container_address_list);
+        mTabs[3] = (RelativeLayout) findViewById(R.id.btn_container_me);
+        setTabSelectedState(index,4);
 	}
+    private void setTabSelectedState(int index, int tabCount) {
+        for (int i = 0; i < tabCount; i++) {
+            if (i == index) {
+                ViewHelper.setAlpha(mTabs[i].getChildAt(0), 0);
+                ViewHelper.setAlpha(mTabs[i].getChildAt(1),1);
+            } else {
+                ViewHelper.setAlpha(mTabs[i].getChildAt(0), 1);
+                ViewHelper.setAlpha(mTabs[i].getChildAt(1),0);
+            }
+        }
+        
+    }
+    /**
+     * button点击事件
+     * 
+     * @param view
+     */
+    public void onTabClicked(View view) {
+        switch (view.getId()) {
+        case R.id.btn_container_home:
+            index = 0;
+            break;
+        case R.id.btn_container_conversation:
+            index = 1;
+            break;
+        case R.id.btn_container_address_list:
+            index = 2;
+            break;
+        case R.id.btn_container_me:
+            index = 3;
+            break;
+        }
+        jazzyPager.setCurrentItem(index, false);
+        
+    }
 
+    private void initJazzyPager() {
+        
+        
+        jazzyPager.setAdapter(new MainPagerAdapter(getSupportFragmentManager(),jazzyPager, fragments ));
+        jazzyPager.setOffscreenPageLimit(4);
+        jazzyPager.setPageMargin(30);
+        jazzyPager.setFadeEnabled(true);
+        jazzyPager.setSlideCallBack(new JazzyViewPager.SlideCallback() {
+            @Override
+            public void callBack(int position, float positionOffset) {
+                ViewHelper.setAlpha(mTabs[position].getChildAt(1), positionOffset);
+                ViewHelper.setAlpha(mTabs[position].getChildAt(0),1- positionOffset);
+            }
+        });
+        jazzyPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                index =position;
+                setTabSelectedState(index, 4);
+            }
 
+            @Override
+            public void onPageScrolled(int paramInt1, float paramFloat, int paramInt2) {
+            }
 
-	/**
-	 * button点击事件
-	 * 
-	 * @param view
-	 */
-	public void onTabClicked(View view) {
-		switch (view.getId()) {
-		case R.id.btn_home:
-			index = 0;
-			break;
-		case R.id.btn_conversation:
-		    index = 1;
-			break;
-		case R.id.btn_address_list:
-			index = 2;
-			break;
-		case R.id.btn_me:
-			index = 3;
-			break;
-		}
-
-		viewpager.setCurrentItem(index,false);
-		mTabs[currentTabIndex].setSelected(false);
-		// 把当前tab设为选中状态
-		mTabs[index].setSelected(true);
-		currentTabIndex = index;
-	}
-
+            @Override
+            public void onPageScrollStateChanged(int paramInt) {
+            }
+        });
+    }
+	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -827,11 +825,7 @@ View.OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-/*		if () {
-			
-		}*/
-		if (DemoHXSDKHelper.getInstance().isLogined() && !hasLogin && !isConflict) {
-		
+		if (DemoHXSDKHelper.getInstance().isLogined()  && !isConflict) {
 		    updateUnreadLabel();
             updateUnreadAddressLable();
             EMChatManager.getInstance().activityResumed();

@@ -81,4 +81,10 @@
     <color name="success">#82dac0</color>
     <color name="info">#7db5e7</color>
     <color name="error">#d47878</color>
+    
+    <color name="holo_blue">#FF33E5B5</color>
+    <color name="menu_text_normal">#999999</color>
+    <color name="menu_text_selected">#45C01A</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="red">#FF0000</color>
 </resources>

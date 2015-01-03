@@ -54,8 +54,11 @@ public class UserDao {
 			db.delete(TABLE_NAME, null, null);
 			for (User user : contactList) {
 				ContentValues values = new ContentValues();
-				values.put(COLUMN_NAME_ID, user.getUsername());
-				//values.put(COLUMN_NAME_ID, user.getId());
+				if(user.getUsername()!=null){
+				    values.put(COLUMN_NAME_ID, user.getUsername());
+				}else{
+				    values.put(COLUMN_NAME_ID, user.getId());
+				}
 		        values.put(COLUMN_NAME, user.getName());
 				if(user.getNick() != null)
 					values.put(COLUMN_NAME_NICK, user.getNick());

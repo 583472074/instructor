@@ -19,6 +19,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.easemob.applib.controller.HXSDKHelper;
 
+/**
+ * 这个DbOpenHelper 不是公用的 换了账号就要变的
+ *
+ */
 public class DbOpenHelper extends SQLiteOpenHelper{
 
 	private static final int DATABASE_VERSION = 1;

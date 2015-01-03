@@ -12,16 +12,9 @@ import itstudio.instructor.ui.NoticeDetailActivity;
 import itstudio.instructor.util.TimeUtil;
 import itstudio.instructor.widget.ChildViewPager;
 import itstudio.instructor.widget.ChildViewPager.OnSingleTouchListener;
+import itstudio.instructor.widget.DynamicBox;
 import itstudio.instructor.xlistview.XListView;
 import itstudio.instructor.xlistview.XListView.IXListViewListener;
-/*import itstudio.instructor.util.FixedSpeedScroller;
-import itstudio.instructor.util.LoginUtil;
-import itstudio.instructor.util.SharedPreferencesUtil;
-import itstudio.instructor.util.TimeUtil;
-import itstudio.instructor.widget.ChildViewPager;
-import itstudio.instructor.widget.ChildViewPager.OnSingleTouchListener;
-import itstudio.instructor.xlistview.XListView;
-import itstudio.instructor.xlistview.XListView.IXListViewListener;*/
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,8 +23,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.http.Header;
-
 import com.easemob.chatuidemo.R;
+import com.easemob.chatuidemo.db.NewsDao;
+import com.easemob.chatuidemo.db.NoticeDao;
 import com.easemob.chatuidemo.utils.FixedSpeedScroller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -53,7 +47,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
@@ -63,7 +56,6 @@ import android.view.animation.Animation.AnimationListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -88,8 +80,6 @@ public class FragmentHome extends Fragment implements IXListViewListener
 	private ChildViewPager viewPager;
 	private List<View> dots;
 	private TextView tv_title;
-	private LinearLayout loadingLayout;
-	private LinearLayout loadFaillayout;
 	private Button bn_refresh;
 
 	private ScheduledExecutorService scheduledExecutorService;
@@ -106,7 +96,7 @@ public class FragmentHome extends Fragment implements IXListViewListener
 	private boolean notice_success = false;// 通知是否加载成功
 	private int page = 0;
 	private int currentItem = 0;
-
+	private DynamicBox box;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -198,7 +188,7 @@ public class FragmentHome extends Fragment implements IXListViewListener
 				false, false)));
 
 		// initView
-		loadingLayout = (LinearLayout) view.findViewById(R.id.view_loading);
+/*		loadingLayout = (LinearLayout) view.findViewById(R.id.view_loading);
 		loadFaillayout = (LinearLayout) view.findViewById(R.id.view_load_fail);
 		bn_refresh = (Button) view.findViewById(R.id.bn_refresh);
 		bn_refresh.setOnClickListener(new OnClickListener() {
@@ -210,13 +200,39 @@ public class FragmentHome extends Fragment implements IXListViewListener
 				loadNotice();
 				//LoginUtil.Login(context);
 			}
-		});
-
+		});*/
+/*		box = new DynamicBox(getActivity(),xListView);
+        box.setDefaultLoadView();
+        box.showLoadingLayout();*/
+		String notice = new NoticeDao(getActivity()).getNitice();
+        if (notice != null) {
+            notice_success = true;
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+            noticeList = gson.fromJson(new String(notice),new TypeToken<List<Notice>>() {}.getType());
+            viewPager.setAdapter(new NoticePagerAdapter(noticeList, context, options_pager));
+        }
+        String news = new NewsDao(getActivity()).getNewsJson();
+        if(news!=null){
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+            newsList = gson.fromJson(news,new TypeToken<List<News>>() {}.getType());
+            adapter.appendData(newsList, true);
+            xListView.autoRefresh();// 自动刷新
+        }
+        else{
+            box = new DynamicBox(getActivity(),xListView);
+            box.setDefaultLoadView();
+            box.showLoadingLayout();
+            loadNews(1, true);
+        }
 		loadNotice();
-		loadNews(1, true);
-
+		
 	}
 
+	/*加载的逻辑
+	 * 先从数据库曲 有的话就展现 然后去主动刷新 存数据库
+	 * 没有的话 展示正在加载中
+	 * 
+	 * */
 	// 加载通知
 	private void loadNotice() {
 		RequestParams params = new RequestParams();
@@ -233,6 +249,7 @@ public class FragmentHome extends Fragment implements IXListViewListener
 					@Override
 					public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
 						// 加载成功
+					    new NoticeDao(getActivity()).saveNitice(new String(arg2));
 						Gson gson = new GsonBuilder().setDateFormat(
 								"yyyy-MM-dd HH:mm:ss").create();
 						noticeList = gson.fromJson(new String(arg2),
@@ -248,7 +265,7 @@ public class FragmentHome extends Fragment implements IXListViewListener
 	}
 
 	// 加载news
-	private void loadNews(int page_num, final boolean refesh) {
+	private void loadNews(final int page_num, final boolean refesh) {
 
 		RequestParams params = new RequestParams();
 		params.put("page", page_num);
@@ -260,26 +277,30 @@ public class FragmentHome extends Fragment implements IXListViewListener
 							Throwable arg3) {
 						// TODO Auto-generated method stub
 						onLoad();
-						loadingLayout.setVisibility(View.GONE);
 						if (page == 0) {
-							loadFaillayout.setVisibility(View.VISIBLE);
+						    if(box!=null){
+						        box.showExceptionLayout();
+						    }
 						}
 					}
 
 					@Override
 					public void onSuccess(int arg0, Header[] arg1, byte[] data) {
 						// 加载成功
+					    if(box!=null){
+					         box.hideAll();
+					    }
 						onLoad();
-						loadingLayout.setVisibility(View.GONE);
-						loadFaillayout.setVisibility(View.GONE);
-						Gson gson = new GsonBuilder().setDateFormat(
-								"yyyy-MM-dd HH:mm:ss").create();
+                        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 						String response = new String(data);
-						newsList = gson.fromJson(new String(data),
-								new TypeToken<List<News>>() {
-								}.getType());
+						System.out.println(response );
+						newsList = gson.fromJson(new String(data),new TypeToken<List<News>>() {}.getType());
+						
+						if(page_num==1){
+						    new NewsDao(getActivity()).saveNews(response);
+						    adapter.clearAll();
+						}
 						page = adapter.appendData(newsList, refesh);
-
 						if (newsList != null && newsList.size() == 10) {
 							xListView.setPullLoadEnable(true);
 						} else {
@@ -422,8 +443,7 @@ public class FragmentHome extends Fragment implements IXListViewListener
 		if(!"".equals(curDate)){
 			xListView.setRefreshTime(curDate);
 		}else{
-			curDate = TimeUtil
-					.dateToString(new Date(), TimeUtil.FORMAT_MONTH_DAY_TIME_EN);
+			curDate = TimeUtil.dateToString(new Date(), TimeUtil.FORMAT_MONTH_DAY_TIME_EN);
 			xListView.setRefreshTime(curDate);
 		}
 		
@@ -443,16 +463,5 @@ public class FragmentHome extends Fragment implements IXListViewListener
         }
     }
 
-/*	@Override
-	public void onSingleTouch() {
-		if (notice_success) {
-
-			Intent intent = new Intent();
-			intent.setClass(context, NoticeDetailActivity.class);
-			Notice notice = noticeList.get(currentItem);
-			intent.putExtra("notice", notice);
-			context.startActivity(intent);
-		}
-	}*/
 	
 }

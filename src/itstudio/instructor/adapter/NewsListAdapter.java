@@ -87,6 +87,10 @@ public class NewsListAdapter extends BaseAdapter {
 		}
 		
 	}
+	public void clearAll() {
+	    newsList.clear();
+	    notifyDataSetChanged();
+	}
 	
 	public int appendData(List<News> addList,boolean refesh) {
 		int result =0;
