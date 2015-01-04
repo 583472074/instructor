@@ -104,7 +104,7 @@ public class ChatAllHistoryAdapter extends ArrayAdapter<EMConversation> {
 			// 群聊消息，显示群聊头像
 			holder.avatar.setImageResource(R.drawable.group_icon);
 			holder.name.setText(contact.getNick() != null ? contact.getNick() : username);
-			//set2do(holder.name, username);
+			
 		} else {
 			// 本地或者服务器获取用户详情，以用来显示头像和nick
 			holder.avatar.setImageResource(R.drawable.default_avatar);
@@ -113,9 +113,11 @@ public class ChatAllHistoryAdapter extends ArrayAdapter<EMConversation> {
 
 			} else if (username.equals(Constant.NEW_FRIENDS_USERNAME)) {
 				holder.name.setText("申请与通知");
+			}else{
+				
+				NameUrlUtils.setNickNameAndHead(holder.name, holder.avatar, username);
 			}
-			set2do(holder.name, username);
-            //holder.name.setText(username);
+            
 		}
 
 		if (conversation.getUnreadMsgCount() > 0) {
@@ -144,15 +146,6 @@ public class ChatAllHistoryAdapter extends ArrayAdapter<EMConversation> {
 	}
 
 
-    private void set2do(final TextView name, String pid) {
-        name.setText(pid);
-        NameUrlUtils.setNickName(pid, new StringRunnable() {
-            @Override
-            public void run(String str) {
-                name.setText(str);
-            }
-        });
-    }
 
 	/**
 	 * 根据消息内容和消息类型获取消息内容提示

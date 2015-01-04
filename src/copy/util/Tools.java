@@ -383,42 +383,6 @@ public class Tools {
 		a.runOnUiThread(run);
 	}
 
-/*	public static void showSelectDialog(final Activity activity, final String t1, final String t2, final String t3, final Runnable run1, final Runnable run2, final Runnable run3) {
-		View vv = View.inflate(context, R.layout.qq_bottom_triple, null);
-		TextView v1 = (TextView) vv.findViewById(R.id.t1);
-		TextView v2 = (TextView) vv.findViewById(R.id.t2);
-		TextView v3 = (TextView) vv.findViewById(R.id.t3);
-		TextView v4 = (TextView) vv.findViewById(R.id.t4);
-		final AlertDialog ad = Tools.showDialog(activity, vv, 0, 0, -1, -2, R.style.head_in_out_bottom, true, true);
-		ad.getWindow().setGravity(Gravity.BOTTOM);
-		if (t2 != null && run2 != null)
-			v2.setVisibility(View.VISIBLE);
-		v1.setText(t1);
-		v2.setText(t2 == null ? "" : t2);
-		v3.setText(t3);
-		OnClickListener oo = new OnClickListener() {
-			public void onClick(View v) {
-				switch (v.getId()) {
-				case R.id.t1:
-					run1.run();
-					break;
-				case R.id.t2:
-					run2.run();
-					break;
-				case R.id.t3:
-					run3.run();
-					break;
-				default:
-					break;
-				}
-				ad.dismiss();
-			}
-		};
-		v1.setOnClickListener(oo);
-		v2.setOnClickListener(oo);
-		v3.setOnClickListener(oo);
-		v4.setOnClickListener(oo);
-	}*/
 
 	/**
 	 * 弹出输入法
@@ -442,57 +406,8 @@ public class Tools {
 		return is.isActive();
 	}
 
-/*	@SuppressLint("SimpleDateFormat")
-	public static String stampToTime(String stamp) {
-		try {
-			Date date = new Date(Long.parseLong(stamp));
-			Date now = new Date(System.currentTimeMillis());
-			SimpleDateFormat ff = new SimpleDateFormat("yyyy-MM-dd");
-			String[] ts = ff.format(date).split("-");
-			String[] tss = ff.format(now).split("-");
-			int y1 = Integer.parseInt(ts[0]);
-			int m1 = Integer.parseInt(ts[1]);
-			int d1 = Integer.parseInt(ts[2]);
 
-			int y2 = Integer.parseInt(tss[0]);
-			int m2 = Integer.parseInt(tss[1]);
-			int d2 = Integer.parseInt(tss[2]);
-
-			if (y1 == y2) {
-				if (m1 == m2) {
-					if (d1 == d2) {
-						SimpleDateFormat ss = new SimpleDateFormat("HH:mm:ss");
-						String time = ss.format(date);
-						return "今天 " + time;
-					} else if (d2 - d1 == 1) {
-						SimpleDateFormat ss = new SimpleDateFormat("HH:mm");
-						String time = ss.format(date);
-						return "昨天 " + time;
-					} else if (d2 - d2 == 2) {
-						SimpleDateFormat ss = new SimpleDateFormat("HH:mm");
-						String time = ss.format(date);
-						return "前天 " + time;
-					} else {
-						SimpleDateFormat ss = new SimpleDateFormat("dd日 HH:mm");
-						String time = ss.format(date);
-						return time;
-					}
-				} else {
-					SimpleDateFormat ss = new SimpleDateFormat("MM月dd日");
-					String time = ss.format(date);
-					return time;
-				}
-			} else {
-				SimpleDateFormat ss = new SimpleDateFormat("yyyy年MM月dd日");
-				String time = ss.format(date);
-				return time;
-			}
-		} catch (Exception e) {
-			return "";
-		}
-	}
-
-	*//**
+	/**
 	 * 跳转到系统图库
 	 *//*
 	public static void goPicLib(Activity a, int requestCode) {

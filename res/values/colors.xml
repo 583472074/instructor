@@ -54,7 +54,7 @@
     <color name="light_black">#999999</color> <!--浅黑 -->
    	<color name="light_blue">#26aeec</color> <!--浅蓝色-->
     <color name="transparent">#00000000</color><!--透明  -->
-    <color name="light_gray">#777f83</color> <!--浅灰色 -->
+    <color name="light_gray">#e3e3e3</color> <!--浅灰色 -->
     <color name="bj">#f0f0f0</color> <!--背景色 -->
     <color name="btntextcolor">#ff1E90FF</color><!--dialog中按钮字体颜色 -->
     

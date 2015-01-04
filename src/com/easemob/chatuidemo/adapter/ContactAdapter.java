@@ -157,22 +157,17 @@ public class ContactAdapter extends ArrayAdapter<User>  implements SectionIndexe
 	                avatar.setImageResource(R.drawable.groups_icon);
 	            }else{
 	                nameTextview.setText(user.getName());
-	                if(Tools.isEmptyStr(user.getName())){
+	               
 	                    String id = user.getId();
 	                    if(Tools.isEmptyStr(id)){
 	                        id = user.getUsername();
 	                    }
-	                    if(!Tools.isEmptyStr(id))
-	                    NameUrlUtils.setNickName(id, new StringRunnable() {
-	                        @Override
-	                        public void run(String str) {
-	                            nameTextview.setText(str);
-	                        }
-	                    });
-	                }
+	                    if(!Tools.isEmptyStr(id)){
+	                    	NameUrlUtils.setNickNameAndHead(nameTextview, avatar, id);
+	                    }
 	                if(unreadMsgView != null)
 	                    unreadMsgView.setVisibility(View.INVISIBLE);
-	                avatar.setImageResource(R.drawable.default_avatar);
+	               
 	            }
 			}
 			

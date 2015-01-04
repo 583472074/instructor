@@ -136,6 +136,7 @@ public class NameUrlDao {
 		ContentValues values = new ContentValues();
 		values.put(COLUMN_ID, nameUrl.getId());
 		values.put(COLUMN_NAME, nameUrl.getName());
+		values.put(COLUMN_HEAD_URL, nameUrl.getHeadUrl());
 		
 		if(db.isOpen()){
 			db.replace(TABLE_NAME, null, values);

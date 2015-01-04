@@ -333,7 +333,7 @@ public class MessageAdapter extends BaseAdapter{
             NameUrlUtils.setNickNameAndHead(holder.tv_userId, holder.head_iv, message.getFrom());
 		}
 	       // 自己头像
-        if(message.direct == EMMessage.Direct.SEND){
+		else {
             itstudio.instructor.util.FileUtils.setImageHead(MyApplication.user.getHeadUrl(), holder.head_iv);
         }
 		// 如果是发送的消息并且不是群聊消息，显示已读textview
