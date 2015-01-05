@@ -62,7 +62,6 @@ public class UserDao {
 				    values.put(COLUMN_ID, user.getId());
 				}
 		        values.put(COLUMN_NAME, user.getName());
-				values.put(COLUMN_HEADURL, user.getHeadUrl());
 				if(user.getNick() != null)
 					values.put(COLUMN_NAME_NICK, user.getNick());
 				db.replace(TABLE_NAME, null, values);

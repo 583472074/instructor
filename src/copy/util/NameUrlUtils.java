@@ -1,6 +1,7 @@
 package copy.util;
 
 import itstudio.instructor.config.MyApplication;
+import itstudio.instructor.entity.User;
 import itstudio.instructor.util.FileUtils;
 
 import java.util.HashMap;
@@ -8,6 +9,8 @@ import com.easemob.chat.EMGroup;
 import com.easemob.chat.EMGroupManager;
 import com.easemob.chatuidemo.R;
 import com.easemob.chatuidemo.db.NameUrlDao;
+import com.easemob.chatuidemo.db.UserDao;
+
 import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -52,7 +55,7 @@ public class NameUrlUtils {
 	public static void setNickNameAndHead(final TextView tv, final ImageView iv, final String mobile) {
 		if (iv != null)
 			iv.setImageResource(R.drawable.head_default_local);
-
+		// 自己的头像
 		if (MyApplication.user != null)
 			if (MyApplication.user.getId().equals(mobile)) {
 				if (tv != null)
@@ -80,7 +83,19 @@ public class NameUrlUtils {
 				FileUtils.setImageHead(nh.getHeadUrl(), iv);
 			return;
 		}
-
+		User user = new UserDao(MyApplication.applicationContext).getContactById(mobile);
+		if (user != null && !Tools.isEmptyStr(user.getHeadUrl())) {
+			NameUrl nh1 = new NameUrl();
+			nh1.setId(user.getId());
+			nh1.setName(user.getName());
+			nh1.setHeadUrl(user.getHeadUrl());
+			CacheUtils.saveNameUrlToCache(nh1);
+			if (tv != null)
+				tv.setText(user.getName());
+			if (iv != null && !Tools.isEmptyStr(user.getHeadUrl()))
+				FileUtils.setImageHead(user.getHeadUrl(), iv);
+			return;
+		}
 		if (failedMap.containsKey(mobile))
 			return;
 
